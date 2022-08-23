@@ -110,3 +110,7 @@ dmypy.json
 *.toc 
 
 auto/
+
+## Personal notebooks, not under version control
+MyNoteBooks/*
+!MyNoteBooks/README.md 
