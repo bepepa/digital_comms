@@ -1,0 +1,435 @@
+\part{Dealing with Unknown Parameters}
+
+\frame{\partpage}
+
+\lecture{Introduction to Estimation Theory for Digital Communications}{Lecture 5}
+
+\section{Estimating Complex Amplitude}
+
+\subsection{Maximimum Likelihood Estimation}
+
+\begin{frame}
+  \frametitle{Signals with Unknown Parameters}
+  \begin{itemize}
+  \item Until now, we have assumed that the received signal is
+    completely known --- except for the information symbols
+    $\mathbf{s} = \{s_n\}$.
+  \item  We have written
+    \[
+      R(t) = s(t| \mathbf{s}) + N_t.
+    \]
+  \item In reality, the signal is received with
+    \begin{itemize}
+    \item unknown amplitude and phase $Ae^{j\theta}$,
+    \item an unkown frequency offset $\Delta\,f$,
+    \item with an unknown delay $\tau$.
+    \end{itemize}
+  \item A more appropriate model for the baseband received signal is,
+    therefore,
+    \[
+      R(t) = A s(t-\tau| \mathbf{s}) \cdot e^{j(2\pi \Delta\,ft +
+        \theta)} + N_t.
+    \]
+    \begin{itemize}
+    \item For the receiver to work, the unknown parameters must be determined.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Estimating Signal Parameters}
+  \begin{itemize}
+  \item The only practical way to determine the unknown signal
+    parameters is to \emph{estimate} them from the received signal.
+  \item Usually, initial estimates are formed with the help of a known
+    \emph{training sequence} transmitted before the information
+    bearing signal.
+    \begin{itemize}
+    \item The training sequence is sometimes called a \emph{preamble}.
+    \item It is sometimes possible to determine parameters without
+      resorting to a training sequences; this is called
+      \emph{``blind''} estimation.
+    \end{itemize}
+  \item After initial estimation, symbol decisions can be used in
+    place of training symbols to continue etimation.
+    \begin{itemize}
+      \item This is called ``tracking''.
+      \item It is particularly important when signal parameters change
+        over time.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to Estimate?}
+  \begin{itemize}
+  \item Assume that we have some observations $\bm{R}$ from the
+    received signal.
+    \begin{itemize}
+    \item These could be samples of the signal itself or samples from
+      the matched filter output.
+    \item These samples are usually taken at an integer multiple of
+      the symbole rate $1/T$; four or eight times oversampling are
+      common.
+    \end{itemize}
+  \item To formulate a general framework for estimation, we denote
+    the set of parameters to be estimated by $\bm{\theta}$.
+    \begin{itemize}
+    \item To emphasize that the observations depend on the
+      parameters $\bm{\theta}$, we may write $\bm{R}_{\bm{\theta}}$.
+    \end{itemize}
+  \item The observations $\bm{R}$ and the parameters
+    $\bm{\theta}$ are connected through the conditional density of
+    $\bm{R}$ given $\bm{\theta}$: $p(\bm{R} | \bm{\theta})$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Maximum Likelihood Estimation (MLE)}
+  \begin{itemize}
+  \item The \emph{Maximum Likelihood Estimate} (MLE)
+    $\bm {\hat{\theta}}({\bm  R})$ is the parameter value that
+    maximizes the observed samples $\bm R$
+  \item More concisely,
+    \[
+      \bm{\hat{\theta}}_{ML}(\bm{R}) = \arg \max_{\bm \theta} p(\bm{R} | \bm{\theta}).
+    \] 
+  \item Often, it is convenient to maximize the logarithm of
+    $p(\bm{R} | \bm{\theta})$ instead:
+    \[
+      \bm{\hat{\theta}}(\bm{R}) = \arg \max_{\bm \theta} \log(p(\bm{R} | \bm{\theta})).
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example: Complex Amplitude from a Single Sample}
+  \begin{itemize}
+  \item Assume that a single sample $R$ is observed according to the
+    model
+    \[
+      R = A \cdot s + N,
+    \]
+    where
+    \begin{itemize}
+    \item $A$ is the unknown, complex amplitude, 
+    \item $s$ is a known, complex (training) symbol
+    \item $N$ is complex white noise $C(0, \sigma^2)$.
+    \end{itemize}
+  \item Conditional on $A=a$, the density of $R$ is Gaussian with mean
+    $as$ and variance $\sigma^2$
+    \[
+      p_R(r | a, s) = \frac{1}{\pi \sigma^2} e^{\frac{|r-sa|^2}{\sigma^2}}.
+    \]
+  \item Clearly, $p_R(r | a, s)$ is maximized when $r-sa = 0$. Hence,
+    \[
+      \hat{A}_{ML} = \frac{R}{s} = \frac{R \cdot s^*}{|s|^2}.
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example: Complex Amplitude from a Single Sample}
+  \begin{itemize}
+  \item Notice that the ML estimator $ \hat{A}_{ML}= \frac{R \cdot
+      s^*}{|s|^2}$ is
+    \begin{itemize}
+    \item a (complex) Gaussian random variable,
+    \item with mean $A$ --- i.e., the true amplitude $A$, and
+    \item variance $\frac{\sigma^2}{|s|^2}$.
+    \end{itemize}
+  \item When the expected value of the estimator equals the true value
+    of the unknown parameter, we say that the estimator is \emph{unbiased}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Maximum A-Posteriori (MAP) Estimation}
+  \begin{itemize}
+  \item Sometimes the unknown parameter can be modeled as a random
+    variable with density $p(\bm{\theta})$.
+  \item Then the a-posteriori density of parameters $\bm{\theta}$
+    given observations $\bm{R}$ is given by
+    \[
+      p(\bm{\theta} | \bm{R}) = \frac{p(\bm{R} | \bm{\theta})p(\bm{\theta})}{p(\bm{R})}.
+    \]
+  \item And the MAP (Bayesian) estimator is given by
+    \[
+      \hat{A}_{MAP}(\bm{R}) = \arg \max_{\bm{\theta}} p(\bm{\theta} | \bm{R})
+      = \arg \max_{\bm{\theta}} p(\bm{R} | \bm{\theta})p(\bm{\theta}).
+    \]
+  \item Taking the logarith is often convenient and leads to
+    \[
+      \hat{A}_{MAP}(\bm{R}) = \arg \max_{\bm{\theta}} \log(p(\bm{R} | \bm{\theta}))
+      + \log(p(\bm{\theta})).
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exercise: MAP Estimation}
+  \begin{itemize}
+  \item Assume the real-valued observation $R$ is described by the model
+    \[
+      R = A + N,
+    \]
+    where
+    \begin{itemize}
+    \item $N$ is Gaussian noise with zero mean and variance
+      $\sigma_N^2$,
+    \item the amplitude $A$ is Gaussian with zero mean and variance $\sigma_A^2$.
+    \end{itemize}
+  \item Find the MAP estimator, $\hat{A}_{MAP}$, for the amplitude.
+  \item <2-> Answer:
+    \[
+      \hat{A}_{MAP} = R \cdot \frac{\sigma_A^2}{\sigma_A^2 + \sigma_N^2}
+    \]
+  \end{itemize}
+\end{frame}
+
+\subsection{Estimating Complex Amplitude}
+
+\begin{frame}
+  \frametitle{Estimating Complex Amplitude with a Training Sequence}
+  \begin{itemize}
+  \item We have shown that amplitude can be estimated from a single
+    sample.
+  \item However, the resulting estimate will no be very accurate ---
+    unless SNR is very high.
+  \item Instead, the unknown, complex amplitude $A$ should be estimated from a sequence
+    of training samples $\bm{s}$.
+  \item The signal model for this case is
+    \[
+      R[n] = A s[n] + N_n \quad \text{for $n=0, \ldots, N-1$},
+    \]
+    where
+    \begin{itemize}
+    \item $N_n$ are i.i.d.\@  complex Gaussian random variables with
+      zero mean and variance $\sigma^2$,
+    \item $s[n]$ are known samples from the training sequence $\bm{s}$.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Estimating Complex Amplitude with a Training Sequence}
+  \begin{itemize}
+  \item Conditional on $A=a$ and the training sequence $\bm{s}$, the
+    samples $R[n]$ have the joint density
+    \[
+      p(\bm{r} |A, \bm{s}) = \prod_{n=0}^{N-1} \frac{1}{(\pi
+        \sigma^2)} e^{-\frac{|r[n] - As[n]|^2}{\sigma^2}}.
+    \]
+  \item Taking the logarithm,
+    \[
+      \ln( p(\bm{r} |A, \bm{s})) = N \ln(\pi \sigma^2) -
+      \frac{1}{\sigma^2} \sum_{n=0}^{N-1} |r[n] - As[n]|^2.
+    \]
+  \item This is a real-valued function of the complex variable
+    $A$. How do we find the maximum?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Brief Detour: Wirtinger Derivatives}
+  \begin{itemize}
+  \item Based on the Cartesian complex representation, $z=x+jy$, the
+    partial derivative of (real) function $f(z) = f(x+jy)$ is defined
+    as
+    \[
+      \frac{\partial f}{\partial z} = \frac{1}{2} (
+      \frac{\partial f}{\partial x} -j
+      \frac{\partial f}{\partial y}).
+    \]
+  \item Wirtinger provided simple rules for taking derivatives with
+    respect to $z$ directly without resorting to real and imaginary
+    parts.
+    \begin{itemize}
+    \item Key ``trick'' write functions $f$ in terms of both $z$ and $z^*$.
+    \end{itemize}
+  \item The next slide has a table of the most common Wirtinger derivatives.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Useful Wirtinger Derivatives}
+  \begin{center}
+    \begin{tabular}{|c|cc|}
+      \hline
+      $f(z)$ &  $\frac{\partial f}{\partial z}$ &  $\frac{\partial f}{\partial z^*}$ \\
+      \hline
+      $cz$ & $c$ & $0$ \\
+      $cz^*$ & $0$ & $c$ \\
+      $|z|^2 = zz^*$ & $z^*$ & $z$ \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+  \item Taking Wirtinger derivatives is like treating $z$ and $z^*$
+    like different variables
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Wirtinger Derivative for Amplitude Estimation}
+  \begin{itemize}
+  \item For our problem, we need to find
+    \[
+     \hat{A}_{ML} = \arg \max_A \sum_{n=0}^{N-1} |r[n] - As[n]|^2.
+    \]
+  \item Expanding the squared absolute value in terms of $A$ and $A^*$
+    yields
+    \[
+     \sum_{n=0}^{N-1} |r[n]|^2 - A^*s^*[n]r[n] - As[n]r^*[n] + AA^*
+     |s[n]|^2.
+   \]
+  \item Now, we can take the Wirtinger derivative --- using the table
+    above --- and set it to zero to obtain the necessary condition for
+    a maximum
+    \[
+      \sum_{n=0}^{N-1} -s[n]r^*[n] + A^* |s[n]|^2 = 0.
+    \]
+  \end{itemize}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{Estimating Complex Amplitude with a Training Sequence}
+  \begin{itemize}
+  \item From
+    \[
+      \sum_{n=0}^{N-1} -s[n]r^*[n] + A^* |s[n]|^2 = 0.
+    \]
+    if follows that the conditional density is maximized when
+     \[
+       \sum_{n=0}^{N-1} s^*[n] (r[n] -As[n]) = 0.
+     \]
+   \item Therefore, the ML estimator is given by
+     \[
+       \hat{A}_{ML}(\bm{R}) =
+       \frac{\sum_n R[n] s^*[n]}{\sum_n  |s[n]|^2} =
+       \frac{\langle \bm{R}, \bm{s} \rangle}{\|\bm{s}\|^2}.
+     \]
+  \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+  \frametitle{Statistics of Amplitude Estimate}
+  \begin{itemize}
+    \item Combining the estimator
+    \[
+      \hat{A}_{ML}(\bm{R}) =
+      \frac{\sum_n R[n] s^*[n]}{\sum_n  |s[n]|^2} =
+      \frac{\langle \bm{R}, \bm{s} \rangle}{\|\bm{s}\|^2}.
+    \]
+    with the signal model
+    \[
+      R[n] = A s[n] + N_n \quad \text{for $n=0, \ldots, N-1$},
+    \]
+    reveals that
+    \begin{itemize}
+    \item $\hat{A}_{ML}(\bm{R})$ is a Gaussian random variable
+    \item with mean $A$ --- i.e., $\hat{A}_{ML}(\bm{R})$ is unbiased
+    \item and variance $\frac{\sigma^2}{\sum_{n=0}^{N-1} |s[n]|^2}$.
+    \end{itemize}
+    \begin{itemize}
+    \item When $|s[n]|^2 = \text{constant}$,  the variance decays like $1/N$.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Cramer-Rao Lower Bound}
+  \begin{itemize}
+  \item \textbf{Question:} Is this estimator any good? Is there an
+    estimator with lower variance?
+  \item The \emph{Cramer-Rao Bound} (CRB) provides a lower bound on the
+    variance achievable by any (unbiased) estimator
+    \[
+      \Var[\hat{\theta}] \geq \frac{1}{I(\theta)},
+    \]
+    where the \emph{Fisher Information} $I(\theta)$ is defined as
+    \[
+      I(\theta) = \E\left[{\left|
+        \frac{d}{d\theta} \ln(p(\bm{R} | \theta)) \right|}^2
+        \right].
+    \]
+    \begin{itemize}
+    \item The expression given here is for a scalar parameter
+      $\theta$; extensions to a vector of parameters exist.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{CRB for Amplitude Estimation}
+  \begin{itemize}
+  \item We compute, step-by-step, the CRB for estimating the amplitude $A$ for the signal
+    model
+    \[
+      R[n] = A s[n] + N_n \quad \text{for $n=0, \ldots, N-1$.}
+    \]
+  \item The log-likelihood of the conditional density function
+    $p(\bm{r} |A, \bm{s})$ is
+    \[
+      \ln(p(\bm{r} |A, \bm{s})) = -N \ln(\pi \sigma^2) -
+      \sum_{n=0}^{N-1} \frac{|r[n] - As[n]|^2}{\sigma^2}.
+    \]
+  \item Taking the (Wirtinger) derivative yields
+    \[
+      \frac{\partial}{\partial A} \ln(p(\bm{r} | A, \bm{s})) =
+      \sum_{n=0}^{N-1} \frac{(r[n] - As[n])s^*[n]}{\sigma^2}
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{CRB for Amplitude Estimation}
+  \begin{itemize}
+  \item Note that
+    \[
+      \sum_{n=0}^{N-1} \frac{(R[n] - As[n])s^*[n]}{\sigma^2}
+    \]
+    is a complex Gaussian random variable with
+    \begin{itemize}
+    \item zero mean (since $\E[R[n]] = As[n]$), and
+    \item variance $\sum_{n=0}^{N-1} \frac{|s[n]|^2}{\sigma^2}$.
+    \end{itemize}
+  \item It follows that the Fisher information is
+    \[
+      I(A) = \E\left[{\left|
+            \ln(p(\bm{R} |A, \bm{s}))\right|}^2
+        \right] = \sum_{n=0}^{N-1} \frac{|s[n]|^2}{\sigma^2}.
+    \]
+  \item And the CRB is
+    \[
+      \Var[\hat{A}] \geq \frac{1}{I(A)} = \frac{\sigma^2}{\sum_{n=0}^{N-1} |s[n]|^2}.
+    \]
+  \item \textbf{Conclusion:} The ML estimator is as good as it gets!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+  \item We have enumerated the most common unknown parameters in the
+    received signal.
+  \item A framework for estimating unknown parameters was formulated,
+    consisting of
+    \begin{itemize}
+    \item conditional density of received observations given the
+      unknown parameters
+    \item Maximum likelihood estimation finds the parameter value(s)
+      that maximize the conditional pdf for the observed data,
+    \item Bayesian (MAP) estimation is appropriate when a density
+      function is available for the unknown parameters.
+    \end{itemize}
+    \item We estimated the complex amplitude of the received signal
+      based on training data and showed that
+      \begin{itemize}
+      \item the estimator is unbiased, and
+      \item has the smallest possible variance.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
