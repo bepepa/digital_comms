@@ -43,7 +43,7 @@ The following functions are used to modulate bits to symbols and vice versa
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils import int_to_bits, bits_to_int, Q
+from comms.utils import int_to_bits, bits_to_int, Q
 
 #
 # Constellations
