@@ -11,7 +11,7 @@ Additionally, there are some functions to pretty-print or plot a constellation.
 
 ## Constellations:
 
-The following constellations are provided:
+The following constellations are provided. Note that these constellations are **NOT** normalized to either unit energy per bit or per symbol. Use `normalize_Eb` or `normalize_Es` to produce constellations that have unit bit or symbol energy, respectively.
 * BPSK (`BPSK`)
 * QPSK (`QPSK`)
 * 16-QAM (`QAM16`)
@@ -38,6 +38,8 @@ The following functions are used to modulate bits to symbols and vice versa
 * `min_dist_sq(mod_table)`: compute the square of the smallest distance between symbols
 * `energy_efficiency(mod_table)`: compute the energy efficiency of the constellation
 * `N_min(mod_table)`: compute the average number of nearest neighbors
+* `normalize_Eb`: normalize a constellation to have unit energy per bit
+* `normalize_Es`: normalize a constellation to have unit energy per symbol
 """
 
 import numpy as np
@@ -125,13 +127,14 @@ def mod_mapper(bits, mod_table):
     return syms
 
 
-def demodulator(syms, mod_table):
+def demodulator(syms, mod_table, n_bits=None):
     """Recover bit sequence from received symbols
 
     Inputs:
     -------
     * syms: sequence of received (noisy) symbols
     * mod_table: dictionary containing the mapping from groups of bits to symbols
+    * n_bits: number of bits to extract
 
     Returns:
     --------
@@ -158,7 +161,11 @@ def demodulator(syms, mod_table):
         # convert that to a sequence of K bits
         bits[n * K : (n + 1) * K] = int_to_bits(min_k, K)
 
-    return bits
+    if n_bits is None:
+        return bits
+    else:
+        N = min(n_bits, len(bits))
+        return bits[:N]
 
 
 #
@@ -352,6 +359,52 @@ def NN_Pr_symbol_error(mod_table, EbN0):
     eta = energy_efficiency(mod_table)
 
     return Q(np.sqrt(eta / 2 * EbN0))
+
+
+def normalize_Eb(mod_table):
+    """Return a constellation that is scaled to have unit energy per bit
+
+    Input:
+    ------
+    mod_table: constellation dictionary
+
+    Returns:
+    --------
+    a dictionary with the same keys as the input constellation and values scale such that the energy per bit is equal to 1.
+
+    Example:
+    --------
+    >>> scaled_QPSK = normalize_Eb(QPSK)
+    >>> energy_per_bit(scaled_QPSK)
+    1
+    """
+    Eb = energy_per_bit(mod_table)
+    scale = 1 / np.sqrt(Eb)
+
+    return {n: scale * mod_table[n] for n in mod_table.keys()}
+
+
+def normalize_Es(mod_table):
+    """Return a constellation that is scaled to have unit energy per symbol
+
+    Input:
+    ------
+    mod_table: constellation dictionary
+
+    Returns:
+    --------
+    a dictionary with the same keys as the input constellation and values scale such that the energy per symbol is equal to 1.
+
+    Example:
+    --------
+    >>> scaled_QPSK = normalize_Es(QPSK)
+    >>> energy_per_symbol(scaled_QPSK)
+    1
+    """
+    Eb = energy_per_symbol(mod_table)
+    scale = 1 / np.sqrt(Eb)
+
+    return {n: scale * mod_table[n] for n in mod_table.keys()}
 
 
 if __name__ == "__main__":
