@@ -42,7 +42,7 @@ def lfsr_step(
     >>> state = 0b1111
     >>> seq = np.empty(10, dtype=np.uint8)
     >>> for n in range(10):
-    >>>     seq[n], state = lfsr31_step(state, 0b1001)
+    >>>     seq[n], state = lfsr_step(state, 0b1001)
     >>> seq
 
     array([1, 1, 1, 1, 0, 0, 0, 0, 0, 0], dtype=uint8)

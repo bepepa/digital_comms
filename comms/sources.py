@@ -90,6 +90,29 @@ def string_sink(bits):
     return bytes.tobytes().decode("utf-8", "replace")
 
 
+def MPE_decision_rule(Z, A):
+    """Decide which symbol was most likely transmitted
+
+    This function examines matched filter outputs (in vector Z) and for each element of Z selects the symbol
+    from constellation A that is closest.
+
+    Inputs:
+    Z - Vector of matched filter outputs
+    A - Constellation
+
+    Returns:
+    Numpy array of the same length as Z
+    """
+    dec = np.empty_like(Z)
+
+    for n in range(len(Z)):
+        this_Z = Z[n]
+        ind = np.argmin(np.abs(A - this_Z))
+        dec[n] = A[ind]
+
+    return dec
+
+
 if __name__ == "__main__":
 
     ## Round-trip test
