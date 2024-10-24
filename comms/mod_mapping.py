@@ -24,8 +24,8 @@ The following constellations are provided. Note that these constellations are **
 
 The following functions are used to modulate bits to symbols and vice versa
 
-* `mod_mapper( bits )`: map a sequence of bits to a sequence of symbols
-* `demodulator( rx_symbols )`: Recover bit sequence from received symbols
+* `mod_mapper( bits, mod_table )`: map a sequence of bits to a sequence of symbols
+* `demodulator( rx_symbols, mod_table )`: Recover bit sequence from received symbols
 
 ## Helpers:
 

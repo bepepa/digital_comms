@@ -1,5 +1,5 @@
 """
-# comms - Python package for simulating digtal communication systems
+# comms - Python package for simulating digital communication systems
 
 ## Modules
 
@@ -10,6 +10,10 @@
 ### `channels`: simulation of transmission
 
 ### `utils`: helper functions used in various modules 
+
+### `sequences`: generating pseud-random sequences
+
+### `pll`: classes and functions for tracking phase an amplitude
 
 
 """

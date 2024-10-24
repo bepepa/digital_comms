@@ -8,8 +8,13 @@
 Contains a set of utility function for use throughout the other modules.
 
 * `Q(x)`: Gaussian error integral
-* `byte_to_bits(b)`: convert a byte to a sequence of bits (in MSB first order)
-* `bits_to_byte(bits)`: convert a sequence of 8 bits to a bytes
+* `bytes_to_bits(byte_seq)`: convert a sequence of bytes to a sequence of bits
+* `bits_to_bytes(bit_seq)`: convert a sequence of bits into a byte sequence (MSB first)
+* `byte_to_bits(b)`: convert a single byte to a sequence of bits (in MSB first order)
+* `bits_to_byte(bits)`: convert a sequence of eight bits to a bytes
+* `bits_to_int(bits)`: convert a sequence of bits to an integer
+* `int_to_bits(nn, K): convert an integer to K bits
+* `crc16(bytes, poly)`: CCITT CRC-16 checksum algorithm
 """
 
 import numpy as np
@@ -34,11 +39,59 @@ def Q(x):
     return 0.5 - 0.5 * special.erf(x / np.sqrt(2))
 
 
+def bytes_to_bits(byte_seq):
+    """Convert a sequence of bytes into a sequence of bits (MSB first)
+
+    Input:
+    ------
+    byte_seq: a sequence of bytes
+
+    Returns:
+    --------
+    a vector of binary values, 8 times as long as the inout sequence (stored as uint8)
+    """
+    # make space for results
+    Nb = len(byte_seq)
+    bits = np.zeros(8 * Nb, dtype=np.uint8)
+
+    for n in range(Nb):
+        bits[8 * n : 8 * (n + 1)] = byte_to_bits(byte_seq[n])
+
+    return bits
+
+
+def bits_to_bytes(bit_seq):
+    """Convert a sequence of bits into a byte sequence (MSB first)
+
+    Input:
+    ------
+    * bit_seq: a sequence of binary values
+
+    Returns:
+    --------
+    a vector of bytes (uint8), length is 1/8 of input length
+
+    Exception:
+    ----------
+    A `ValueError` is raised if length of bit sequence is not divisible by 8.
+    """
+    Nb = len(bit_seq)
+    if (Nb % 8) != 0:
+        raise (ValueError, "number of bits must be a multiple of 8")
+
+    byte_seq = np.zeros(Nb // 8, dtype=np.uint8)
+
+    for n in range(Nb // 8):
+        byte_seq[n] = bits_to_byte(bit_seq[8 * n : 8 * (n + 1)])
+
+    return byte_seq
+
+
 #
 # bit-wrangling functions
 #
 def byte_to_bits(b):
-    """convert a byte to a sequence of 8 bits (MSB first)
+    """convert a single byte to a sequence of 8 bits (MSB first)
 
     Inputs:
     -------
@@ -132,6 +185,33 @@ def int_to_bits(nn: int, K: int):
         nn = nn << 1
 
     return bits
+
+
+def crc16(data: bytes, poly=0x8408):
+    """
+    CRC-16-CCITT Algorithm
+
+    Args:
+        data (bytes): byte sequence to be checked (type bytes)
+        poly (int): 16-bit integer indicating the polynomial used by CRC (default 0x8408)
+
+    Returns:
+        16-bit CRC
+    """
+    data = bytearray(data)
+    crc = 0xFFFF
+    for b in data:
+        cur_byte = 0xFF & b
+        for _ in range(0, 8):
+            if (crc & 0x0001) ^ (cur_byte & 0x0001):
+                crc = (crc >> 1) ^ poly
+            else:
+                crc >>= 1
+            cur_byte >>= 1
+    crc = ~crc & 0xFFFF
+    crc = (crc << 8) | ((crc >> 8) & 0xFF)
+
+    return crc & 0xFFFF
 
 
 if __name__ == "__main__":

@@ -2,6 +2,21 @@
 
 import numpy as np
 
+"""
+# comms.pll
+
+contains classes and functions for use in phase and amplitude tracking
+
+* `class First_Order_Filter`: first order loop filter
+* `class Second_Order_Filter`: second order loop filter
+* `class Integrator`: integrator (with unit delay)
+
+* `rotate_phase(Z_n, phi)`: rotate the phase of the input signal Z_n by phi
+* `measure_phase(X_n, s_n)`: measure the phase difference of  symbol X_n and s_n
+* `scale_amplitude(Z_n, gamma)`: scale the amplitude of the input signal Z_n by gamma
+* `measure_amplitude_error(X_n, s_n)`: measure the amplitude error of modulated symbol
+"""
+
 
 class First_Order_Filter:
     """Class representing a first-order loop filter"""
@@ -103,7 +118,13 @@ class Second_Order_Filter:
 
 
 class Integrator:
-    """Class representing an integrator"""
+    """Class representing an integrator (with unit delay)
+
+    The z-transform of this block is
+    $$
+    H(z) = \dfrac{z^{-1}}{1 - z^{-1}}.
+    $$
+    """
 
     def __init__(self, state=0):
         self.state = state
